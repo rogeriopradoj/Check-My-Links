@@ -43,27 +43,38 @@ chrome.extension.onMessage.addListener(
     // When close element is clicked, hide UI
     document.getElementById("CMY_RB_Close").onclick = function(){removeDOMElement("CMY_ReportBox");};
     document.getElementById("CMY_RB_Export").onclick = function(){
-    var output = "";
+    var output = "URL,OuterHTML,PageScanned,LinkType\n";
+    
     var badLinks = document.getElementsByClassName("CMY_Invalid");
-    // Export csv string so it is accessible via excel
     if(badLinks.length > 0){
-      output += "URL,OuterHTML\n";
       for (i = 0; i < badLinks.length; i++) {
         var outerHTML;
-        output += "\"";
-        output += badLinks[i].href;
-        output += "\",";
-        output += "\"";
         outerHTML = badLinks[i].outerHTML.replace(/"/g, '""');
-        output += outerHTML;
-        output += "\"";
+
+        output += "\"" + badLinks[i].href + "\",";
+        output += "\"" + outerHTML + "\",";
+        output += "\"" + window.location.href + "\",";
+        output += "\"CMY_Invalid\"";
         output += "\n";
       }
-      output = output.rtrim(',');
     }
-    else{
-      output = "No links to export";
+
+    var validLinks = document.getElementsByClassName("CMY_Valid");
+    if (validLinks.length > 0) {
+      for (i = 0; i < validLinks.length; i++) {
+        var outerHTML;
+        outerHTML = validLinks[i].outerHTML.replace(/"/g, '""');
+
+        output += "\"" + validLinks[i].href + "\",";
+        output += "\"" + outerHTML + "\",";
+        output += "\"" + window.location.href + "\",";
+        output += "\"CMY_Valid\"";
+        output += "\n";
+      }
     }
+
+    output = output.rtrim(',');
+    
     console.log(output);
     };
     // Remove the event listener in the event this is run again without reloading
